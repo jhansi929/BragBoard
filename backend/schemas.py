@@ -1,33 +1,54 @@
-# schemas.py
-from pydantic import BaseModel, EmailStr
-from typing import Optional
+from pydantic import BaseModel
+from typing import Optional, List
+from datetime import datetime
 
-class UserCreate(BaseModel):
+# ----------------------
+# User Schemas
+# ----------------------
+class UserBase(BaseModel):
     name: str
-    email: EmailStr
+    email: str
+    department: Optional[str] = None
+
+class UserCreate(UserBase):
     password: str
-    department: Optional[str] = None
 
-class UserResponse(BaseModel):
+class UserLogin(BaseModel):
+    email: str
+    password: str
+
+class UserResponse(UserBase):
     id: int
-    name: str
-    email: EmailStr
-    department: Optional[str] = None
     role: str
 
     class Config:
-        # orm_mode for pydantic v1; if you run pydantic v2 this may not be required,
-        # but it's compatible with most FastAPI setups.
-        orm_mode = True
-        # keep from_attributes for setups using Pydantic v2 (harmless in v1)
         from_attributes = True
 
-class UserLogin(BaseModel):
-    email: EmailStr
-    password: str
-
+# ----------------------
+# Token Schema
+# ----------------------
 class Token(BaseModel):
     access_token: str
     refresh_token: str
     token_type: str
 
+# ----------------------
+# Shoutout Schemas
+# ----------------------
+class ShoutoutBase(BaseModel):
+    message: str
+    recipient_ids: Optional[List[int]] = []
+
+class ShoutoutCreate(ShoutoutBase):
+    department: Optional[str] = None
+
+class ShoutoutResponse(ShoutoutBase):
+    id: int
+    sender_id: int
+    sender_name: str
+    sender_role: str
+    sender_department: Optional[str]
+    created_at: Optional[datetime]
+
+    class Config:
+        from_attributes = True
